@@ -28,6 +28,7 @@ import {
   INITIAL_TRANSACTIONS,
   INITIAL_BUDGETS,
   INITIAL_TAX_DEDUCTIONS,
+  EMPTY_TAX_DEDUCTIONS,
 } from './utils/storage';
 import { computeThaiTax, formatTHB } from './utils/thaiTax';
 import { PORTFOLIO_CONFIGS, simulateCompoundGrowth } from './utils/investment';
@@ -306,6 +307,30 @@ export default function App() {
     reader.readAsText(file);
   }, []);
 
+  const handleClearTaxInputs = useCallback(() => {
+    setAnnualIncome(0);
+    setIncomeType('40_1_2');
+    setDeductions(EMPTY_TAX_DEDUCTIONS);
+    showTemporaryNotice('ล้างค่ารายได้และลดหย่อนภาษีเป็น 0 เรียบร้อย');
+  }, []);
+
+  const handleClearAllData = useCallback(() => {
+    setTransactions([]);
+    setBudgets({});
+    setAnnualIncome(0);
+    setIncomeType('40_1_2');
+    setDeductions(EMPTY_TAX_DEDUCTIONS);
+    setAge(25);
+    setTargetAge(60);
+    setCapital(0);
+    setMonthly(0);
+    setRisk('medium');
+    setInflationRate(2.5);
+    setAdjustInflation(false);
+    setMessages(getInitialChatMessages());
+    showTemporaryNotice('ล้างค่าระบบเป็น 0 ทั้งหมดแล้ว พร้อมเริ่มบันทึกใหม่!');
+  }, []);
+
   const handleResetData = useCallback(() => {
     setTransactions(INITIAL_TRANSACTIONS);
     setBudgets(INITIAL_BUDGETS);
@@ -320,7 +345,7 @@ export default function App() {
     setInflationRate(2.5);
     setAdjustInflation(false);
     setMessages(getInitialChatMessages());
-    showTemporaryNotice('รีเซ็ตกลับเป็นข้อมูลตัวอย่างเรียบร้อยแล้ว');
+    showTemporaryNotice('โหลดชุดข้อมูลตัวอย่างกลับมาเรียบร้อยแล้ว');
   }, []);
 
   const tabTitleMap: Record<NavTabId, string> = {
@@ -339,6 +364,7 @@ export default function App() {
       onExportCSV={() => handleExportCSV(transactions, 'all')}
       onImportBackup={handleImportBackup}
       backupNotice={backupNotice}
+      onClearAllData={handleClearAllData}
       onResetData={handleResetData}
     >
       {activeTab === 'cashflow' && (
@@ -364,6 +390,7 @@ export default function App() {
           onChangeIncome={setAnnualIncome}
           onChangeIncomeType={setIncomeType}
           onChangeDeductions={handleDeductionChange}
+          onClearTaxInputs={handleClearTaxInputs}
         />
       )}
 

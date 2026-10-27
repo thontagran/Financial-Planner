@@ -71,6 +71,22 @@ export const INITIAL_TAX_DEDUCTIONS: TaxDeductions = {
   other: 0,
 };
 
+export const EMPTY_TAX_DEDUCTIONS: TaxDeductions = {
+  socialSec: 0,
+  lifeIns: 0,
+  healthIns: 0,
+  providentFund: 0,
+  ssf: 0,
+  rmf: 0,
+  thaiEsg: 0,
+  homeInterest: 0,
+  easyEReceipt: 0,
+  spouse: false,
+  childrenCount: 0,
+  parentsCount: 0,
+  other: 0,
+};
+
 export function loadStoredTransactions(): Transaction[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
@@ -95,7 +111,11 @@ export function saveStoredTransactions(transactions: Transaction[]): void {
 export function loadStoredBudgets(): CategoryBudgets {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.BUDGETS);
-    return data ? { ...INITIAL_BUDGETS, ...JSON.parse(data) } : INITIAL_BUDGETS;
+    if (data !== null) {
+      const parsed = JSON.parse(data);
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+    return INITIAL_BUDGETS;
   } catch {
     return INITIAL_BUDGETS;
   }
@@ -114,11 +134,13 @@ export function loadStoredTaxState() {
     const income = localStorage.getItem(STORAGE_KEYS.TAX_INCOME);
     const section = localStorage.getItem(STORAGE_KEYS.TAX_SECTION);
     const deductionsRaw = localStorage.getItem(STORAGE_KEYS.TAX_DEDUCTIONS);
-    const parsedDeductions = deductionsRaw ? JSON.parse(deductionsRaw) : {};
+    const parsedDeductions = deductionsRaw ? JSON.parse(deductionsRaw) : null;
     return {
-      income: income ? Number(income) : 720000,
+      income: income !== null ? Number(income) : 720000,
       section: (section as IncomeSectionType) || '40_1_2',
-      deductions: { ...INITIAL_TAX_DEDUCTIONS, ...parsedDeductions } as TaxDeductions,
+      deductions: (parsedDeductions
+        ? { ...EMPTY_TAX_DEDUCTIONS, ...parsedDeductions }
+        : INITIAL_TAX_DEDUCTIONS) as TaxDeductions,
     };
   } catch {
     return {
@@ -153,12 +175,12 @@ export function loadStoredInvestState() {
     const inflation = localStorage.getItem(STORAGE_KEYS.INVEST_INFLATION);
     const adjustInf = localStorage.getItem(STORAGE_KEYS.INVEST_ADJUST_INFLATION);
     return {
-      age: age ? Number(age) : 28,
-      targetAge: targetAge ? Number(targetAge) : 60,
-      capital: capital ? Number(capital) : 100000,
-      monthly: monthly ? Number(monthly) : 8000,
+      age: age !== null ? Number(age) : 28,
+      targetAge: targetAge !== null ? Number(targetAge) : 60,
+      capital: capital !== null ? Number(capital) : 100000,
+      monthly: monthly !== null ? Number(monthly) : 8000,
       risk: (risk as RiskLevel) || 'medium',
-      inflationRate: inflation ? Number(inflation) : 2.5,
+      inflationRate: inflation !== null ? Number(inflation) : 2.5,
       adjustInflation: adjustInf === 'true',
     };
   } catch {

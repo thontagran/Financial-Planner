@@ -11,6 +11,7 @@ import {
   Upload,
   FileSpreadsheet,
   RotateCcw,
+  Eraser,
   ShieldCheck,
   X,
   CheckCircle2,
@@ -28,6 +29,7 @@ interface MobileFrameProps {
   onExportCSV: () => void;
   onImportBackup: (file: File) => void;
   backupNotice: string | null;
+  onClearAllData: () => void;
   onResetData: () => void;
 }
 
@@ -40,11 +42,13 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
   onExportCSV,
   onImportBackup,
   backupNotice,
+  onClearAllData,
   onResetData,
 }) => {
   const [isPhoneMockupMode, setIsPhoneMockupMode] = useState(true);
   const [showSettingsSheet, setShowSettingsSheet] = useState(false);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showClearZeroConfirm, setShowClearZeroConfirm] = useState(false);
+  const [showResetDemoConfirm, setShowResetDemoConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentTime = new Date().toLocaleTimeString('th-TH', {
@@ -120,9 +124,15 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
-              <div className="mr-1">
-                <OfflineIndicator />
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowClearZeroConfirm(true)}
+                className="min-h-[38px] px-2.5 py-1.5 flex items-center gap-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-950/80 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                title="ล้างค่าระบบเพื่อเริ่มบันทึกใหม่"
+              >
+                <Eraser className="w-3.5 h-3.5 shrink-0" />
+                <span>เริ่มใหม่</span>
+              </button>
 
               <button
                 type="button"
@@ -145,6 +155,14 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Inline Notification Toast */}
+          {backupNotice && !showSettingsSheet && (
+            <div className="mx-3.5 mt-2.5 px-3.5 py-2.5 rounded-2xl bg-emerald-600 text-white text-xs font-medium flex items-center gap-2 shadow-sm shrink-0 z-20">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{backupNotice}</span>
+            </div>
+          )}
 
           {/* PWA Install Banner */}
           <PWAInstallBanner />
@@ -178,11 +196,11 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 dark:text-white text-sm">
-                      จัดการข้อมูล & สำรองออฟไลน์
+                      จัดการข้อมูล & ตั้งค่าระบบ
                     </h3>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                      ข้อมูลเก็บในเครื่องของคุณ 100% ปลอดภัย
-                    </p>
+                    <div className="mt-0.5">
+                      <OfflineIndicator />
+                    </div>
                   </div>
                 </div>
                 <button
@@ -202,12 +220,27 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                 </div>
               )}
 
+              {/* Primary Fresh Start Action */}
+              <div className="p-3 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/80 dark:border-rose-800/60 space-y-2">
+                <p className="text-[11px] text-rose-900 dark:text-rose-200 font-medium">
+                  ต้องการเริ่มจดรายรับ-รายจ่ายและคำนวณภาษีของตัวเองใหม่ตั้งแต่ศูนย์?
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowClearZeroConfirm(true)}
+                  className="w-full min-h-[44px] px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-colors cursor-pointer whitespace-nowrap"
+                >
+                  <Eraser className="w-4 h-4 shrink-0" />
+                  <span>ล้างค่าระบบทั้งหมดเพื่อเริ่มบันทึกใหม่ (ค่าเป็น 0)</span>
+                </button>
+              </div>
+
               {/* Backup & Export Actions */}
               <div className="space-y-2">
                 <button
                   type="button"
                   onClick={onExportBackup}
-                  className="w-full min-h-[48px] px-4 py-3 bg-slate-50 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/70 rounded-2xl flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-slate-100 transition-colors cursor-pointer"
+                  className="w-full min-h-[46px] px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/70 rounded-2xl flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-slate-100 transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2.5">
                     <Download className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
@@ -219,7 +252,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full min-h-[48px] px-4 py-3 bg-slate-50 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/70 rounded-2xl flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-slate-100 transition-colors cursor-pointer"
+                  className="w-full min-h-[46px] px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/70 rounded-2xl flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-slate-100 transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2.5">
                     <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -238,7 +271,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                 <button
                   type="button"
                   onClick={onExportCSV}
-                  className="w-full min-h-[48px] px-4 py-3 bg-slate-50 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/70 rounded-2xl flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-slate-100 transition-colors cursor-pointer"
+                  className="w-full min-h-[46px] px-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/70 rounded-2xl flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-slate-100 transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2.5">
                     <FileSpreadsheet className="w-4 h-4 text-teal-600 dark:text-teal-400" />
@@ -252,11 +285,11 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
               <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowResetConfirm(true)}
-                  className="min-h-[44px] flex items-center gap-1.5 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-xl text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
+                  onClick={() => setShowResetDemoConfirm(true)}
+                  className="min-h-[44px] flex items-center gap-1.5 px-3 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>รีเซ็ตข้อมูลตัวอย่าง</span>
+                  <span>โหลดข้อมูลตัวอย่าง</span>
                 </button>
 
                 <button
@@ -271,18 +304,34 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
           </div>
         )}
 
-        {/* Custom Bottom Sheet Confirmation for Resetting Sample Data */}
+        {/* Confirmation Bottom Sheet: Clear ALL System Values to ZERO */}
         <ConfirmBottomSheet
-          isOpen={showResetConfirm}
-          title="รีเซ็ตกลับเป็นข้อมูลตัวอย่าง?"
-          description="รายการรายรับ-รายจ่าย ค่าลดหย่อนภาษี และแผนการลงทุนที่คุณแก้ไขไว้จะถูกรีเซ็ตกลับเป็นค่าเริ่มต้นทั้งหมด (แนะนำให้กดสำรองไฟล์ JSON ก่อนหากต้องการเก็บข้อมูลเดิม)"
-          confirmLabel="ยืนยันรีเซ็ตข้อมูล"
+          isOpen={showClearZeroConfirm}
+          title="ล้างค่าระบบเพื่อเริ่มบันทึกใหม่?"
+          description="รายการรายรับ-รายจ่าย งบรายหมวด รายได้/ค่าลดหย่อนภาษี และยอดเงินลงทุนทั้งหมดจะถูกล้างเป็น 0 เพื่อให้คุณเริ่มคำนวณและบันทึกข้อมูลของคุณเองใหม่ทั้งหมด"
+          confirmLabel="ล้างค่าเริ่มใหม่"
           cancelLabel="ยกเลิก"
           variant="danger"
-          onCancel={() => setShowResetConfirm(false)}
+          onCancel={() => setShowClearZeroConfirm(false)}
+          onConfirm={() => {
+            onClearAllData();
+            setShowClearZeroConfirm(false);
+            setShowSettingsSheet(false);
+          }}
+        />
+
+        {/* Confirmation Bottom Sheet: Load Sample Demo Data */}
+        <ConfirmBottomSheet
+          isOpen={showResetDemoConfirm}
+          title="โหลดข้อมูลตัวอย่างกลับมาแสดง?"
+          description="ระบบจะนำชุดข้อมูลตัวอย่าง (เงินเดือน รายจ่าย ค่าลดหย่อน และพอร์ตจำลอง) กลับมาแสดงแทนข้อมูลปัจจุบัน"
+          confirmLabel="โหลดข้อมูลตัวอย่าง"
+          cancelLabel="ยกเลิก"
+          variant="primary"
+          onCancel={() => setShowResetDemoConfirm(false)}
           onConfirm={() => {
             onResetData();
-            setShowResetConfirm(false);
+            setShowResetDemoConfirm(false);
             setShowSettingsSheet(false);
           }}
         />

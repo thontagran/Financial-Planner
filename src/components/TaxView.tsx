@@ -27,6 +27,7 @@ interface TaxViewProps {
   onChangeIncome: (val: number) => void;
   onChangeIncomeType: (val: IncomeSectionType) => void;
   onChangeDeductions: <K extends keyof TaxDeductions>(field: K, val: TaxDeductions[K]) => void;
+  onClearTaxInputs?: () => void;
 }
 
 export const TaxView: React.FC<TaxViewProps> = ({
@@ -37,6 +38,7 @@ export const TaxView: React.FC<TaxViewProps> = ({
   onChangeIncome,
   onChangeIncomeType,
   onChangeDeductions,
+  onClearTaxInputs,
 }) => {
   const [activeTab, setActiveTab] = useState<'calculator' | 'ladder' | 'tips'>('calculator');
 
@@ -148,19 +150,30 @@ export const TaxView: React.FC<TaxViewProps> = ({
         <div className="space-y-4">
           {/* 1. Annual Income Card */}
           <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3 transition-colors">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <h4 className="text-xs font-bold text-slate-900 dark:text-white">
                 01. รายได้พึงประเมินทั้งปี (บาท)
               </h4>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                รวมโบนัส/งานเสริม
-              </span>
+              {onClearTaxInputs ? (
+                <button
+                  type="button"
+                  onClick={onClearTaxInputs}
+                  className="min-h-[30px] px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer whitespace-nowrap"
+                >
+                  ล้างค่าภาษีเป็น 0
+                </button>
+              ) : (
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                  รวมโบนัส/งานเสริม
+                </span>
+              )}
             </div>
 
             <input
               type="number"
-              value={annualIncome}
+              value={annualIncome || ''}
               onChange={(e) => onChangeIncome(Math.max(0, Number(e.target.value)))}
+              placeholder="กรอกรายได้ต่อปี เช่น 600000"
               className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-lg text-slate-900 dark:text-white tabular-nums focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
 

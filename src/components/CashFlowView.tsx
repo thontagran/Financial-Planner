@@ -128,6 +128,13 @@ export const CashFlowView: React.FC<CashFlowViewProps> = ({
     return months[0] || new Date().toISOString().slice(0, 7);
   });
 
+  // Sync selectedMonth if it no longer exists after clearing transactions
+  React.useEffect(() => {
+    if (selectedMonth !== 'all' && !availableMonths.includes(selectedMonth)) {
+      setSelectedMonth(availableMonths[0] || new Date().toISOString().slice(0, 7));
+    }
+  }, [availableMonths, selectedMonth]);
+
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
 
   // Add / Edit Transaction Sheet state

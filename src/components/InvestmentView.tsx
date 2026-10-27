@@ -516,30 +516,38 @@ export const InvestmentView: React.FC<InvestmentViewProps> = ({
             </label>
             <input
               type="number"
-              value={capital}
+              value={capital || ''}
               onChange={(e) => onChangeCapital(Math.max(0, Number(e.target.value)))}
+              placeholder="0"
               className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-white tabular-nums focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
           </div>
 
-          <div>
-            <div className="flex justify-between text-slate-700 dark:text-slate-300 font-medium mb-1">
-              <span>เงินลงทุนออมรายเดือน DCA</span>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center text-slate-700 dark:text-slate-300 font-medium">
+              <span>เงินลงทุนออมรายเดือน DCA (บาท/เดือน)</span>
               <span className="text-indigo-600 dark:text-indigo-400 font-bold tabular-nums">
                 {formatTHB(monthly)}/ด.
               </span>
             </div>
             <input
+              type="number"
+              value={monthly || ''}
+              onChange={(e) => onChangeMonthly(Math.max(0, Number(e.target.value)))}
+              placeholder="0"
+              className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-900 dark:text-white tabular-nums focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+            <input
               type="range"
-              min="1000"
+              min="0"
               max="100000"
               step="1000"
-              value={monthly}
+              value={Math.min(100000, monthly)}
               onChange={(e) => onChangeMonthly(Number(e.target.value))}
               className="w-full accent-indigo-600"
             />
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {[3000, 5000, 10000, 20000, 50000].map((m) => (
+            <div className="flex flex-wrap gap-1.5">
+              {[0, 3000, 5000, 10000, 20000, 50000].map((m) => (
                 <button
                   key={m}
                   type="button"
@@ -550,7 +558,7 @@ export const InvestmentView: React.FC<InvestmentViewProps> = ({
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
-                  {m >= 1000 ? `${m / 1000}k` : m}
+                  {m >= 1000 ? `${m / 1000}k` : '0'}
                 </button>
               ))}
             </div>
